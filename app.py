@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import folium
+import matplotlib
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from streamlit_folium import st_folium
@@ -31,7 +32,7 @@ if uploaded_file is not None:
     lon_col = st.sidebar.selectbox("Select Longitude Column", cols)
 
     if lat_col and lon_col:
-        data = df[[lat_col, lon_col]].dropna()
+        data = df[[lat_col, lon_col]].dropna().copy()
 
         # Cluster settings
         st.sidebar.header("Clustering Options")
@@ -45,21 +46,19 @@ if uploaded_file is not None:
             # KMeans
             kmeans = KMeans(n_clusters=n_clusters, random_state=42)
             clusters = kmeans.fit_predict(data_scaled)
-
-            # Add cluster labels
-            df['cluster'] = clusters
+            data['cluster'] = clusters  # Only add to filtered data
 
             # Display clustered data
             st.subheader("🧮 Clustered Data")
-            st.write(df.head())
+            st.write(data.head())
 
             # Map visualization
             st.subheader("🗺️ Cluster Map")
+            cmap = matplotlib.cm.get_cmap('tab10', n_clusters)
+            colors = [matplotlib.colors.rgb2hex(cmap(i)) for i in range(n_clusters)]
+
             m = folium.Map(location=[data[lat_col].mean(), data[lon_col].mean()], zoom_start=12)
-
-            colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightblue', 'beige', 'darkblue', 'pink']
-
-            for idx, row in df.iterrows():
+            for idx, row in data.iterrows():
                 folium.CircleMarker(
                     location=[row[lat_col], row[lon_col]],
                     radius=2,
@@ -73,7 +72,7 @@ if uploaded_file is not None:
             # Download clustered data
             st.sidebar.download_button(
                 label="Download Clustered Data",
-                data=df.to_csv(index=False),
+                data=data.to_csv(index=False),
                 file_name='clustered_data.csv',
                 mime='text/csv'
             )
@@ -83,4 +82,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Made with ❤️ using [Streamlit](https://streamlit.io)  | 🎯 Supports UN SDG 11")
+st.markdown("Made with ❤️ by George Arogo | 🎯 Supports UN SDG 11")
