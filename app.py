@@ -46,7 +46,7 @@ if uploaded_file is not None:
             # KMeans
             kmeans = KMeans(n_clusters=n_clusters, random_state=42)
             clusters = kmeans.fit_predict(data_scaled)
-            data['cluster'] = clusters  # Only add to filtered data
+            data['cluster'] = clusters  
 
             # Display clustered data
             st.subheader("🧮 Clustered Data")
@@ -62,9 +62,9 @@ if uploaded_file is not None:
                 folium.CircleMarker(
                     location=[row[lat_col], row[lon_col]],
                     radius=2,
-                    color=colors[row['cluster']],
+                    color=colors[int(row['cluster'])],
                     fill=True,
-                    fill_color=colors[row['cluster']]
+                    fill_color=colors[int(row['cluster'])]
                 ).add_to(m)
 
             st_folium(m, width=1000, height=600)
