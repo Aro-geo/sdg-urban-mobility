@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import folium
-import matplotlib
+import matplotlib.cm as cm
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from streamlit_folium import st_folium
@@ -42,48 +42,54 @@ if uploaded_file is not None:
         data[lat_col] = pd.to_numeric(data[lat_col], errors='coerce')
         data[lon_col] = pd.to_numeric(data[lon_col], errors='coerce')
 
-        # Cluster settings
-        st.sidebar.header("Clustering Options")
-        n_clusters = st.sidebar.slider("Number of Clusters (K)", min_value=2, max_value=10, value=5)
+        if data.empty:
+            st.warning("No valid latitude/longitude values found. Please check your dataset.")
+        else:
+            # Cluster settings
+            st.sidebar.header("Clustering Options")
+            n_clusters = st.sidebar.slider("Number of Clusters (K)", min_value=2, max_value=10, value=5)
 
-        if st.sidebar.button("Run Clustering"):
-            # Preprocess
-            scaler = StandardScaler()
-            data_scaled = scaler.fit_transform(data)
+            if st.sidebar.button("Run Clustering"):
+                # Preprocess
+                scaler = StandardScaler()
+                data_scaled = scaler.fit_transform(data)
 
-            # KMeans
-            kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-            clusters = kmeans.fit_predict(data_scaled)
-            data['cluster'] = clusters  
+                # KMeans
+                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                clusters = kmeans.fit_predict(data_scaled)
+                data['cluster'] = clusters  
 
-            # Display clustered data
-            st.subheader("🧮 Clustered Data")
-            st.write(data.head())
+                # Display clustered data
+                st.subheader("🧮 Clustered Data")
+                st.write(data.head())
 
-            # Map visualization
-            st.subheader("🗺️ Cluster Map")
-            cmap = matplotlib.cm.get_cmap('tab10', n_clusters)
-            colors = [matplotlib.colors.rgb2hex(cmap(i)) for i in range(n_clusters)]
+                # Map visualization
+                st.subheader("🗺️ Cluster Map")
 
-            m = folium.Map(location=[data[lat_col].mean(), data[lon_col].mean()], zoom_start=12)
-            for idx, row in data.iterrows():
-                folium.CircleMarker(
-                    location=[row[lat_col], row[lon_col]],
-                    radius=2,
-                    color=colors[int(row['cluster'])],
-                    fill=True,
-                    fill_color=colors[int(row['cluster'])]
-                ).add_to(m)
+                # Generate cluster colors
+                colors = [cm.hsv(i / n_clusters) for i in range(n_clusters)]
+                hex_colors = ['#%02x%02x%02x' % (int(r*255), int(g*255), int(b*255)) for r, g, b, *_ in colors]
 
-            st_folium(m, width=1000, height=600)
+                m = folium.Map(location=[data[lat_col].mean(), data[lon_col].mean()], zoom_start=12)
+                for idx, row in data.iterrows():
+                    color_index = int(row['cluster'])
+                    folium.CircleMarker(
+                        location=[row[lat_col], row[lon_col]],
+                        radius=2,
+                        color=hex_colors[color_index],
+                        fill=True,
+                        fill_color=hex_colors[color_index]
+                    ).add_to(m)
 
-            # Download clustered data
-            st.sidebar.download_button(
-                label="Download Clustered Data",
-                data=data.to_csv(index=False),
-                file_name='clustered_data.csv',
-                mime='text/csv'
-            )
+                st_folium(m, width=1000, height=600)
+
+                # Download clustered data
+                st.sidebar.download_button(
+                    label="Download Clustered Data",
+                    data=data.to_csv(index=False),
+                    file_name='clustered_data.csv',
+                    mime='text/csv'
+                )
 
 else:
     st.info("Please upload a CSV file to begin.")
