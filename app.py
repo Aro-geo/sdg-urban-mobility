@@ -31,10 +31,16 @@ if uploaded_file is not None:
     lat_col = st.sidebar.selectbox("Select Latitude Column", cols)
     lon_col = st.sidebar.selectbox("Select Longitude Column", cols)
 
-    if lat_col and lon_col:
-        data = df[[lat_col, lon_col]].dropna().copy()
-        data = data[pd.to_numeric(data[lat_col], errors='coerce').notnull()]
-        data = data[pd.to_numeric(data[lon_col], errors='coerce').notnull()]
+    if lat_col and lon_col and lat_col != lon_col:
+        # Only proceed if both columns are selected and not the same
+        data = df[[lat_col, lon_col]].copy()
+        # Ensure numeric and drop NaNs
+        data = data[
+            pd.to_numeric(data[lat_col], errors='coerce').notnull() &
+            pd.to_numeric(data[lon_col], errors='coerce').notnull()
+        ]
+        data[lat_col] = pd.to_numeric(data[lat_col], errors='coerce')
+        data[lon_col] = pd.to_numeric(data[lon_col], errors='coerce')
 
         # Cluster settings
         st.sidebar.header("Clustering Options")
