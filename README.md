@@ -1,7 +1,7 @@
 # 🚇 AI for Sustainable Cities: Urban Mobility Optimizer  
 ## Machine Learning Meets UN SDG 11 🌍🤖
 
-> A machine learning solution to help cities optimize public transport routes using real-time pickup data and K-Means clustering.
+> Project link: https://sdg-urban-mobility.streamlit.app/
 
 This project demonstrates how **artificial intelligence can support sustainable urban development** by identifying high-demand zones in transportation systems. The insights generated can be used by city planners and transit authorities to improve route planning, reduce emissions, and promote equitable access to mobility services — directly contributing to **United Nations Sustainable Development Goal 11 (SDG 11)**.
 
@@ -60,6 +60,7 @@ By optimizing public transport, this project helps reduce:
 ## 📦 Project Screenshots
 ![image](https://github.com/user-attachments/assets/34216369-3020-4557-bd5b-2551210a6f13)
 
+![image](https://github.com/user-attachments/assets/f665dad9-5553-422f-9fa9-5f64345bccfd)
 
 
 ---
