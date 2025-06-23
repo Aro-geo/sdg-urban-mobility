@@ -33,6 +33,8 @@ if uploaded_file is not None:
 
     if lat_col and lon_col:
         data = df[[lat_col, lon_col]].dropna().copy()
+        data = data[pd.to_numeric(data[lat_col], errors='coerce').notnull()]
+        data = data[pd.to_numeric(data[lon_col], errors='coerce').notnull()]
 
         # Cluster settings
         st.sidebar.header("Clustering Options")
@@ -47,6 +49,10 @@ if uploaded_file is not None:
             kmeans = KMeans(n_clusters=n_clusters, random_state=42)
             clusters = kmeans.fit_predict(data_scaled)
             data['cluster'] = clusters  
+
+            # Debug: Show data shape and head
+            st.write("Data shape:", data.shape)
+            st.write(data.head())
 
             # Display clustered data
             st.subheader("🧮 Clustered Data")
