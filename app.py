@@ -50,10 +50,6 @@ if uploaded_file is not None:
             clusters = kmeans.fit_predict(data_scaled)
             data['cluster'] = clusters  
 
-            # Debug: Show data shape and head
-            st.write("Data shape:", data.shape)
-            st.write(data.head())
-
             # Display clustered data
             st.subheader("🧮 Clustered Data")
             st.write(data.head())
